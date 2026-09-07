@@ -1,8 +1,8 @@
 # Digital Business Card API
 
-Backend-приложение цифровой визитки, разработанное на NestJS, TypeScript, GraphQL и Prisma.
+Backend-приложение цифровой визитки на NestJS, TypeScript, GraphQL, Prisma и CockroachDB.
 
-Приложение предоставляет информацию о профиле разработчика, профессиональных навыках, опыте работы, проектах и профессиональных ссылках через GraphQL API.
+API предоставляет информацию о профиле разработчика, профессиональных ссылках, навыках, опыте работы, достижениях и проектах.
 
 ## Technology Stack
 
@@ -17,29 +17,32 @@ Backend-приложение цифровой визитки, разработа
 - Docker
 - Docker Compose
 - Vitest
-- Git
 
 ## Features
 
-- GraphQL API в Code First подходе
+- GraphQL API
+- GraphQL Code First
 - профиль разработчика
 - профессиональные ссылки
-- список навыков
-- опыт работы и достижения
-- список проектов
-- вложенные GraphQL relations
-- CockroachDB через Prisma ORM
+- навыки
+- опыт работы
+- достижения
+- проекты
+- вложенные GraphQL-сущности
+- Prisma ORM
+- CockroachDB
 - Prisma migrations
-- автоматическое заполнение базы данных
+- автоматический seed базы данных
 - Docker-окружение
-- автоматическая подготовка базы при первом запуске
-- health endpoint
+- автоматическая подготовка базы при запуске
+- health check
 - валидация environment variables
-- unit и e2e тесты
+- unit tests
+- e2e tests
 
 ## Quick Start
 
-Для запуска всего приложения требуется Docker Desktop.
+Для запуска приложения требуется Docker Desktop.
 
 Клонируйте репозиторий:
 
@@ -57,20 +60,31 @@ docker compose up --build
 После запуска будут доступны:
 
 - Apollo Sandbox: http://localhost:3000/graphql
-- Health check: http://localhost:3000/health
+- Health Check: http://localhost:3000/health
 - CockroachDB Console: http://localhost:8080
 
-При первом запуске Docker Compose автоматически:
+Docker Compose автоматически:
 
 1. запускает CockroachDB
-2. создает базу `digital_business_card`
-3. применяет Prisma migrations
-4. заполняет базу начальными данными
-5. запускает NestJS API
+2. ожидает готовности базы данных
+3. создает базу `digital_business_card`
+4. применяет Prisma migrations
+5. выполняет database seed
+6. запускает NestJS API
 
-Дополнительная ручная подготовка базы данных не требуется.
+Дополнительная ручная подготовка базы данных для Docker-запуска не требуется.
 
-## GraphQL Example
+## GraphQL
+
+GraphQL endpoint:
+
+```text
+http://localhost:3000/graphql
+```
+
+После открытия адреса в браузере доступен Apollo Sandbox.
+
+Пример запроса:
 
 ```graphql
 query {
@@ -106,7 +120,7 @@ query {
 }
 ```
 
-Пример сокращенного запроса:
+Сокращенный пример:
 
 ```graphql
 query {
@@ -129,29 +143,17 @@ query {
 }
 ```
 
-GraphQL позволяет клиенту выбирать только необходимые поля.
+GraphQL позволяет клиенту выбирать только необходимые поля ответа.
 
-## API
+## Health Check
 
-### GraphQL
-
-```text
-POST /graphql
-```
-
-Apollo Sandbox доступен по адресу:
-
-```text
-GET /graphql
-```
-
-### Health Check
+Endpoint:
 
 ```text
 GET /health
 ```
 
-Успешный ответ:
+Пример успешного ответа:
 
 ```json
 {
@@ -161,7 +163,13 @@ GET /health
 }
 ```
 
-Если соединение с базой данных недоступно, endpoint возвращает HTTP `503 Service Unavailable`.
+Health check выполняет запрос к базе данных.
+
+Если CockroachDB недоступна, API возвращает:
+
+```text
+503 Service Unavailable
+```
 
 ## Architecture
 
@@ -186,25 +194,25 @@ Prisma ORM
 CockroachDB
 ```
 
-### Resolver
+### ProfileResolver
 
-Отвечает за GraphQL API и передачу запросов в бизнес-слой.
+Отвечает за GraphQL API и передачу запроса в service layer.
 
-### Service
+### ProfileService
 
-Содержит логику получения данных и не зависит от GraphQL transport layer.
+Содержит логику получения профиля и связанных сущностей.
 
 ### PrismaService
 
-Инкапсулирует доступ к Prisma Client и соединение с базой данных.
+Инкапсулирует Prisma Client и управление соединением с базой данных.
 
-### Database
+### CockroachDB
 
-CockroachDB хранит профиль и связанные сущности.
+Используется для хранения профиля, навыков, опыта работы, проектов и профессиональных ссылок.
 
 ## Database Structure
 
-Основная модель:
+Основная структура данных:
 
 ```text
 Profile
@@ -214,9 +222,57 @@ Profile
 └── Project[]
 ```
 
-Внутренние поля базы данных не раскрываются автоматически через GraphQL.
+### Profile
 
-Например:
+Содержит:
+
+- имя
+- описание
+- уникальный slug
+- связанные ссылки
+- навыки
+- опыт работы
+- проекты
+
+### ProfessionalLink
+
+Содержит профессиональные ссылки пользователя:
+
+- GitHub
+- Telegram
+- Email
+
+### Skill
+
+Содержит список технологий и навыков.
+
+### Experience
+
+Содержит:
+
+- компанию
+- должность
+- дату начала
+- дату окончания
+- признак текущего места работы
+- достижения
+
+### Project
+
+Содержит:
+
+- название
+- описание
+- URL проекта
+- URL репозитория
+
+## GraphQL and Database Models
+
+Prisma models и GraphQL models разделены.
+
+Prisma отвечает за структуру базы данных, а GraphQL models определяют публичный API.
+
+Внутренние поля базы данных, например:
 
 ```text
 id
@@ -227,21 +283,19 @@ createdAt
 updatedAt
 ```
 
-остаются внутренними полями приложения.
-
-GraphQL schema определяется отдельно через Code First модели.
+не раскрываются через GraphQL, если они явно не добавлены в GraphQL model.
 
 ## Database Initialization
 
 Для управления схемой используется Prisma Migrate.
 
-В development:
+Создание migration в development:
 
 ```bash
 npm run db:migrate
 ```
 
-Для применения существующих миграций:
+Применение существующих migrations:
 
 ```bash
 npm run db:deploy
@@ -253,55 +307,35 @@ npm run db:deploy
 npm run db:seed
 ```
 
-Проверка состояния миграций:
+Проверка состояния migrations:
 
 ```bash
 npm run db:status
 ```
 
-Seed можно выполнять повторно без накопления дублирующихся данных.
+Генерация Prisma Client:
+
+```bash
+npm run db:generate
+```
+
+Seed можно выполнять повторно без накопления дублирующихся связанных данных.
 
 ## Local Development
 
 Требования:
 
 - Node.js 24+
-- Docker Desktop
 - npm
+- Docker Desktop
 
-Установка зависимостей:
+Установите зависимости:
 
 ```bash
 npm install
 ```
 
-Запуск CockroachDB:
-
-```bash
-docker compose up -d cockroachdb cockroachdb-init
-```
-
-Применение миграций:
-
-```bash
-npm run db:deploy
-```
-
-Заполнение базы:
-
-```bash
-npm run db:seed
-```
-
-Запуск NestJS:
-
-```bash
-npm run start:dev
-```
-
-## Environment Variables
-
-Пример находится в `.env.example`.
+Создайте `.env` на основе `.env.example`:
 
 ```env
 DATABASE_URL="postgresql://root@localhost:26257/digital_business_card?sslmode=disable"
@@ -309,15 +343,71 @@ PORT=3000
 NODE_ENV=development
 ```
 
-Environment variables валидируются при запуске приложения.
+Запустите CockroachDB:
 
-Обязательная переменная:
-
-```text
-DATABASE_URL
+```bash
+docker compose up -d cockroachdb cockroachdb-init
 ```
 
-Допустимые значения `NODE_ENV`:
+Примените migrations:
+
+```bash
+npm run db:deploy
+```
+
+Заполните базу:
+
+```bash
+npm run db:seed
+```
+
+Запустите NestJS:
+
+```bash
+npm run start:dev
+```
+
+API будет доступен по адресу:
+
+```text
+http://localhost:3000
+```
+
+## Environment Variables
+
+Пример environment variables находится в:
+
+```text
+.env.example
+```
+
+Используемые переменные:
+
+```env
+DATABASE_URL="postgresql://root@localhost:26257/digital_business_card?sslmode=disable"
+PORT=3000
+NODE_ENV=development
+```
+
+### DATABASE_URL
+
+Строка подключения к CockroachDB.
+
+Переменная обязательна.
+
+### PORT
+
+Порт HTTP-сервера.
+
+По умолчанию:
+
+```text
+3000
+```
+
+### NODE_ENV
+
+Допустимые значения:
 
 ```text
 development
@@ -325,17 +415,30 @@ test
 production
 ```
 
+Environment variables валидируются при запуске приложения.
+
 ## Testing
 
-Unit и integration/e2e тесты написаны с использованием Vitest.
+### Unit Tests
 
-Запуск всех тестов:
+Unit-тесты не требуют запущенной базы данных.
+
+Запуск:
 
 ```bash
 npm test
 ```
 
-Запуск e2e тестов:
+Проверяются:
+
+- AppController
+- ProfileService
+
+### E2E Tests
+
+E2E-тесты проверяют настоящее приложение и требуют доступную CockroachDB.
+
+При запущенном Docker-окружении:
 
 ```bash
 npm run test:e2e
@@ -343,59 +446,114 @@ npm run test:e2e
 
 Проверяются:
 
-- ProfileService
-- AppController
-- `/health`
+- `GET /health`
 - GraphQL `profile` query
+- взаимодействие NestJS с Prisma и CockroachDB
 
 ## Code Quality
 
-Проверка линтером:
+Запуск линтера:
 
 ```bash
 npm run lint
 ```
 
-Проверка production build:
+Production build:
 
 ```bash
 npm run build
 ```
 
-## Docker Commands
+Базовая проверка проекта:
 
-Запустить:
+```bash
+npm run check
+```
+
+Команда выполняет:
+
+```text
+lint
+unit tests
+build
+```
+
+E2E-тесты запускаются отдельно, поскольку требуют базу данных.
+
+## Docker
+
+Запуск приложения:
 
 ```bash
 npm run docker:up
 ```
 
-Остановить:
+Остановка:
 
 ```bash
 npm run docker:down
 ```
 
-Удалить контейнеры и базу данных:
+Удаление контейнеров и volume базы данных:
 
 ```bash
 npm run docker:reset
 ```
 
-Посмотреть логи API:
+Просмотр логов API:
 
 ```bash
 npm run docker:logs
 ```
 
-Для проверки полностью чистого запуска:
+Полностью чистый запуск:
 
 ```bash
 docker compose down -v
 docker compose up --build
 ```
 
-После этого миграции и seed выполняются автоматически.
+После удаления volume база создается заново, Prisma migrations применяются автоматически, после чего выполняется seed.
+
+## Docker Services
+
+Docker Compose содержит четыре сервиса:
+
+```text
+cockroachdb
+cockroachdb-init
+migrate
+app
+```
+
+Последовательность запуска:
+
+```text
+CockroachDB
+     |
+     v
+Database Health Check
+     |
+     v
+Database Initialization
+     |
+     v
+Prisma Migrations
+     |
+     v
+Database Seed
+     |
+     v
+NestJS API
+```
+
+CockroachDB SQL port и Web Console локально привязаны к:
+
+```text
+127.0.0.1
+```
+
+и не публикуются на внешних сетевых интерфейсах компьютера.
 
 ## Project Structure
 
@@ -428,6 +586,7 @@ digital-business-card/
 │   │   ├── profile.service.spec.ts
 │   │   └── profile.service.ts
 │   │
+│   ├── app.controller.spec.ts
 │   ├── app.controller.ts
 │   ├── app.module.ts
 │   ├── app.service.ts
@@ -438,73 +597,111 @@ digital-business-card/
 │
 ├── .dockerignore
 ├── .env.example
+├── .gitignore
 ├── Dockerfile
 ├── docker-compose.yml
 ├── prisma.config.ts
-└── package.json
+├── package.json
+├── vitest.config.ts
+└── vitest.e2e.config.ts
 ```
 
 ## Engineering Decisions
 
 ### GraphQL Code First
 
-GraphQL schema описывается TypeScript-классами и декораторами NestJS.
+GraphQL schema формируется из TypeScript-классов и декораторов NestJS.
 
-Это позволяет использовать TypeScript как основной источник типов API и уменьшает дублирование между TypeScript и GraphQL schema.
+Такой подход позволяет использовать TypeScript как источник типов GraphQL API.
 
-### Separate GraphQL and Database Models
+### Separate GraphQL and Prisma Models
 
-Prisma models и GraphQL models разделены.
+GraphQL models и Prisma models разделены.
 
-Благодаря этому структура базы данных не определяет автоматически публичный API.
-
-### CockroachDB
-
-CockroachDB используется как основная реляционная база данных.
-
-Для локальной разработки база запускается в single-node режиме через Docker.
-
-`--insecure` используется только в локальном development-окружении.
-
-### Prisma Adapter
-
-Для соединения Prisma с CockroachDB используется PostgreSQL-совместимый драйвер через `@prisma/adapter-pg`.
+Это позволяет независимо контролировать публичный API и структуру базы данных.
 
 ### Explicit Module Dependencies
 
-`PrismaModule` не является global module.
+`PrismaModule` не объявлен глобальным.
 
-Модули, которым требуется доступ к данным, импортируют его явно.
+Модули, которым требуется Prisma, подключают его явно.
 
-Это делает зависимости модулей более прозрачными.
+Это делает зависимости приложения более прозрачными.
+
+### Deterministic Ordering
+
+Связанные сущности содержат `sortOrder`.
+
+API возвращает:
+
+- ссылки
+- навыки
+- опыт
+- проекты
+
+в предсказуемом порядке.
 
 ### Database Seed
 
-Seed является повторно запускаемым.
+Seed предназначен для автоматической подготовки данных цифровой визитки.
 
-Повторный запуск обновляет профиль и пересоздает связанные данные без накопления дубликатов.
+Повторный запуск обновляет профиль и пересоздает связанные сущности, не создавая наборы дублирующихся записей.
 
 ### Docker Startup
 
-Docker Compose контролирует последовательность запуска:
+NestJS API запускается только после успешной подготовки CockroachDB.
+
+Перед запуском приложения выполняются:
 
 ```text
-CockroachDB
-     |
-     v
-Database initialization
-     |
-     v
+database initialization
 Prisma migrations
-     |
-     v
-Database seed
-     |
-     v
-NestJS API
+database seed
 ```
 
-Приложение запускается только после успешной подготовки базы данных.
+### CockroachDB Development Mode
+
+Локальный Docker Compose использует CockroachDB в single-node режиме.
+
+Параметр:
+
+```text
+--insecure
+```
+
+предназначен только для локального development/demo окружения.
+
+Для публичного deployment используется защищенное подключение к внешней базе данных.
+
+## Available Scripts
+
+```bash
+npm run build
+npm run start
+npm run start:dev
+npm run start:prod
+
+npm run lint
+npm run format
+
+npm test
+npm run test:watch
+npm run test:cov
+npm run test:e2e
+
+npm run db:generate
+npm run db:migrate
+npm run db:deploy
+npm run db:seed
+npm run db:status
+
+npm run docker:up
+npm run docker:down
+npm run docker:reset
+npm run docker:logs
+
+npm run check
+```
 
 ## Author
 
