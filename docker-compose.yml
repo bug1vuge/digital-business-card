@@ -27,7 +27,7 @@ services:
         ]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
 
   cockroachdb-init:
     image: cockroachdb/cockroach:v25.4.4
@@ -43,6 +43,50 @@ services:
         "--host=cockroachdb:26257",
         "--execute=CREATE DATABASE IF NOT EXISTS digital_business_card;"
       ]
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+
+    environment:
+      DATABASE_URL: "postgresql://root@cockroachdb:26257/digital_business_card?sslmode=disable"
+
+    depends_on:
+      cockroachdb-init:
+        condition: service_completed_successfully
+
+    command:
+      [
+        "sh",
+        "-c",
+        "npx prisma migrate deploy && npx prisma db seed"
+      ]
+
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+
+    container_name: digital-business-card-api
+
+    environment:
+      DATABASE_URL: "postgresql://root@cockroachdb:26257/digital_business_card?sslmode=disable"
+      PORT: "3000"
+      NODE_ENV: "production"
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+    restart: unless-stopped
 
 volumes:
   cockroach-data:
