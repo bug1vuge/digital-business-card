@@ -6,6 +6,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { validateEnvironment } from './config/env.validation.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { ProfileModule } from './profile/profile.module.js';
 
@@ -14,17 +15,15 @@ import { ProfileModule } from './profile/profile.module.js';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
+      validate: validateEnvironment,
     }),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
       sortSchema: true,
-
       graphiql: false,
-
       introspection: true,
-
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
 
