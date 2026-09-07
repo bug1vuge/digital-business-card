@@ -1,114 +1,513 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Digital Business Card API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend-приложение цифровой визитки, разработанное на NestJS, TypeScript, GraphQL и Prisma.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Приложение предоставляет информацию о профиле разработчика, профессиональных навыках, опыте работы, проектах и профессиональных ссылках через GraphQL API.
 
-## Description
+## Technology Stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- TypeScript
+- Node.js
+- NestJS
+- GraphQL
+- Apollo Server
+- Apollo Sandbox
+- Prisma ORM
+- CockroachDB
+- Docker
+- Docker Compose
+- Vitest
+- Git
 
-## Project setup
+## Features
 
-```bash
-$ npm install
-```
+- GraphQL API в Code First подходе
+- профиль разработчика
+- профессиональные ссылки
+- список навыков
+- опыт работы и достижения
+- список проектов
+- вложенные GraphQL relations
+- CockroachDB через Prisma ORM
+- Prisma migrations
+- автоматическое заполнение базы данных
+- Docker-окружение
+- автоматическая подготовка базы при первом запуске
+- health endpoint
+- валидация environment variables
+- unit и e2e тесты
 
-## Compile and run the project
+## Quick Start
 
-```bash
-# development
-$ npm run start
+Для запуска всего приложения требуется Docker Desktop.
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
+Клонируйте репозиторий:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone <repository-url>
+cd digital-business-card
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Запустите приложение:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose up --build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+После запуска будут доступны:
 
-## Observability
+- Apollo Sandbox: http://localhost:3000/graphql
+- Health check: http://localhost:3000/health
+- CockroachDB Console: http://localhost:8080
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+При первом запуске Docker Compose автоматически:
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+1. запускает CockroachDB
+2. создает базу `digital_business_card`
+3. применяет Prisma migrations
+4. заполняет базу начальными данными
+5. запускает NestJS API
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+Дополнительная ручная подготовка базы данных не требуется.
 
-## Resources
+## GraphQL Example
 
-Check out a few resources that may come in handy when working with NestJS:
+```graphql
+query {
+  profile {
+    name
+    description
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+    links {
+      label
+      url
+    }
 
-## Support
+    skills {
+      name
+    }
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+    experience {
+      company
+      position
+      startDate
+      endDate
+      current
+      achievements
+    }
 
-## Stay in touch
+    projects {
+      name
+      description
+      url
+      repositoryUrl
+    }
+  }
+}
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Пример сокращенного запроса:
 
-## License
+```graphql
+query {
+  profile {
+    name
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+    skills {
+      name
+    }
+
+    experience {
+      company
+      position
+    }
+
+    projects {
+      name
+    }
+  }
+}
+```
+
+GraphQL позволяет клиенту выбирать только необходимые поля.
+
+## API
+
+### GraphQL
+
+```text
+POST /graphql
+```
+
+Apollo Sandbox доступен по адресу:
+
+```text
+GET /graphql
+```
+
+### Health Check
+
+```text
+GET /health
+```
+
+Успешный ответ:
+
+```json
+{
+  "status": "ok",
+  "database": "connected",
+  "timestamp": "2026-09-07T00:00:00.000Z"
+}
+```
+
+Если соединение с базой данных недоступно, endpoint возвращает HTTP `503 Service Unavailable`.
+
+## Architecture
+
+Приложение разделено на несколько уровней:
+
+```text
+GraphQL Request
+      |
+      v
+ProfileResolver
+      |
+      v
+ProfileService
+      |
+      v
+PrismaService
+      |
+      v
+Prisma ORM
+      |
+      v
+CockroachDB
+```
+
+### Resolver
+
+Отвечает за GraphQL API и передачу запросов в бизнес-слой.
+
+### Service
+
+Содержит логику получения данных и не зависит от GraphQL transport layer.
+
+### PrismaService
+
+Инкапсулирует доступ к Prisma Client и соединение с базой данных.
+
+### Database
+
+CockroachDB хранит профиль и связанные сущности.
+
+## Database Structure
+
+Основная модель:
+
+```text
+Profile
+├── ProfessionalLink[]
+├── Skill[]
+├── Experience[]
+└── Project[]
+```
+
+Внутренние поля базы данных не раскрываются автоматически через GraphQL.
+
+Например:
+
+```text
+id
+profileId
+slug
+sortOrder
+createdAt
+updatedAt
+```
+
+остаются внутренними полями приложения.
+
+GraphQL schema определяется отдельно через Code First модели.
+
+## Database Initialization
+
+Для управления схемой используется Prisma Migrate.
+
+В development:
+
+```bash
+npm run db:migrate
+```
+
+Для применения существующих миграций:
+
+```bash
+npm run db:deploy
+```
+
+Заполнение базы:
+
+```bash
+npm run db:seed
+```
+
+Проверка состояния миграций:
+
+```bash
+npm run db:status
+```
+
+Seed можно выполнять повторно без накопления дублирующихся данных.
+
+## Local Development
+
+Требования:
+
+- Node.js 24+
+- Docker Desktop
+- npm
+
+Установка зависимостей:
+
+```bash
+npm install
+```
+
+Запуск CockroachDB:
+
+```bash
+docker compose up -d cockroachdb cockroachdb-init
+```
+
+Применение миграций:
+
+```bash
+npm run db:deploy
+```
+
+Заполнение базы:
+
+```bash
+npm run db:seed
+```
+
+Запуск NestJS:
+
+```bash
+npm run start:dev
+```
+
+## Environment Variables
+
+Пример находится в `.env.example`.
+
+```env
+DATABASE_URL="postgresql://root@localhost:26257/digital_business_card?sslmode=disable"
+PORT=3000
+NODE_ENV=development
+```
+
+Environment variables валидируются при запуске приложения.
+
+Обязательная переменная:
+
+```text
+DATABASE_URL
+```
+
+Допустимые значения `NODE_ENV`:
+
+```text
+development
+test
+production
+```
+
+## Testing
+
+Unit и integration/e2e тесты написаны с использованием Vitest.
+
+Запуск всех тестов:
+
+```bash
+npm test
+```
+
+Запуск e2e тестов:
+
+```bash
+npm run test:e2e
+```
+
+Проверяются:
+
+- ProfileService
+- AppController
+- `/health`
+- GraphQL `profile` query
+
+## Code Quality
+
+Проверка линтером:
+
+```bash
+npm run lint
+```
+
+Проверка production build:
+
+```bash
+npm run build
+```
+
+## Docker Commands
+
+Запустить:
+
+```bash
+npm run docker:up
+```
+
+Остановить:
+
+```bash
+npm run docker:down
+```
+
+Удалить контейнеры и базу данных:
+
+```bash
+npm run docker:reset
+```
+
+Посмотреть логи API:
+
+```bash
+npm run docker:logs
+```
+
+Для проверки полностью чистого запуска:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+После этого миграции и seed выполняются автоматически.
+
+## Project Structure
+
+```text
+digital-business-card/
+├── prisma/
+│   ├── migrations/
+│   ├── schema.prisma
+│   └── seed.ts
+│
+├── src/
+│   ├── config/
+│   │   └── env.validation.ts
+│   │
+│   ├── prisma/
+│   │   ├── prisma.module.ts
+│   │   └── prisma.service.ts
+│   │
+│   ├── profile/
+│   │   ├── models/
+│   │   │   ├── experience.model.ts
+│   │   │   ├── professional-link.model.ts
+│   │   │   ├── profile.model.ts
+│   │   │   ├── project.model.ts
+│   │   │   └── skill.model.ts
+│   │   │
+│   │   ├── profile.constants.ts
+│   │   ├── profile.module.ts
+│   │   ├── profile.resolver.ts
+│   │   ├── profile.service.spec.ts
+│   │   └── profile.service.ts
+│   │
+│   ├── app.controller.ts
+│   ├── app.module.ts
+│   ├── app.service.ts
+│   └── main.ts
+│
+├── test/
+│   └── app.e2e.spec.ts
+│
+├── .dockerignore
+├── .env.example
+├── Dockerfile
+├── docker-compose.yml
+├── prisma.config.ts
+└── package.json
+```
+
+## Engineering Decisions
+
+### GraphQL Code First
+
+GraphQL schema описывается TypeScript-классами и декораторами NestJS.
+
+Это позволяет использовать TypeScript как основной источник типов API и уменьшает дублирование между TypeScript и GraphQL schema.
+
+### Separate GraphQL and Database Models
+
+Prisma models и GraphQL models разделены.
+
+Благодаря этому структура базы данных не определяет автоматически публичный API.
+
+### CockroachDB
+
+CockroachDB используется как основная реляционная база данных.
+
+Для локальной разработки база запускается в single-node режиме через Docker.
+
+`--insecure` используется только в локальном development-окружении.
+
+### Prisma Adapter
+
+Для соединения Prisma с CockroachDB используется PostgreSQL-совместимый драйвер через `@prisma/adapter-pg`.
+
+### Explicit Module Dependencies
+
+`PrismaModule` не является global module.
+
+Модули, которым требуется доступ к данным, импортируют его явно.
+
+Это делает зависимости модулей более прозрачными.
+
+### Database Seed
+
+Seed является повторно запускаемым.
+
+Повторный запуск обновляет профиль и пересоздает связанные данные без накопления дубликатов.
+
+### Docker Startup
+
+Docker Compose контролирует последовательность запуска:
+
+```text
+CockroachDB
+     |
+     v
+Database initialization
+     |
+     v
+Prisma migrations
+     |
+     v
+Database seed
+     |
+     v
+NestJS API
+```
+
+Приложение запускается только после успешной подготовки базы данных.
+
+## Author
+
+Максим Малютин
+
+GitHub: https://github.com/bug1vuge

@@ -7,6 +7,8 @@ export default defineConfig({
 
   test: {
     environment: 'node',
-    include: ['src/**/*.spec.ts'],
+    include: ['test/**/*.e2e.spec.ts'],
+    testTimeout: 10000,
+    hookTimeout: 10000,
   },
 });
