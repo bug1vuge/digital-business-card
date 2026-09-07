@@ -1,8 +1,8 @@
 {
   "name": "digital-business-card",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Digital business card GraphQL API built with NestJS, Prisma and CockroachDB",
+  "author": "Maksim Malyutin",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
@@ -28,7 +28,8 @@
     "docker:up": "docker compose up -d --build",
     "docker:down": "docker compose down",
     "docker:reset": "docker compose down -v",
-    "docker:logs": "docker compose logs -f app"
+    "docker:logs": "docker compose logs -f app",
+    "check": "npm run lint && npm test && npm run build"
   },
   "dependencies": {
     "@apollo/server": "^5.5.1",
@@ -64,5 +65,8 @@
     "tsx": "^4.23.13",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }
