@@ -1,22 +1,57 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
+import {
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+
 import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
+import {
+  AppService,
+  HealthStatus,
+} from './app.service.js';
 
 describe('AppController', () => {
-  let appController: AppController;
+  let controller: AppController;
+
+  const getHealthMock =
+    vi.fn<() => Promise<HealthStatus>>();
+
+  const appServiceMock = {
+    getHealth: getHealthMock,
+  };
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const moduleRef = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [
+        {
+          provide: AppService,
+          useValue: appServiceMock,
+        },
+      ],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    controller = moduleRef.get<AppController>(AppController);
+
+    vi.clearAllMocks();
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
-    });
+  it('should return application health status', async () => {
+    const healthStatus: HealthStatus = {
+      status: 'ok',
+      database: 'connected',
+      timestamp: '2026-09-07T00:00:00.000Z',
+    };
+
+    getHealthMock.mockResolvedValue(healthStatus);
+
+    await expect(controller.getHealth()).resolves.toEqual(
+      healthStatus,
+    );
+
+    expect(getHealthMock).toHaveBeenCalledOnce();
   });
 });
