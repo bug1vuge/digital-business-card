@@ -1,0 +1,78 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "cockroachdb"
+}
+
+model Profile {
+  id          String @id @default(uuid())
+  slug        String @unique
+  name        String
+  description String
+
+  links      ProfessionalLink[]
+  skills     Skill[]
+  experience Experience[]
+  projects   Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProfessionalLink {
+  id    String @id @default(uuid())
+  label String
+  url   String
+
+  sortOrder Int @default(0)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model Skill {
+  id   String @id @default(uuid())
+  name String
+
+  sortOrder Int @default(0)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, name])
+}
+
+model Experience {
+  id       String @id @default(uuid())
+  company  String
+  position String
+
+  startDate DateTime
+  endDate   DateTime?
+  current   Boolean   @default(false)
+
+  achievements String[] @default([])
+
+  sortOrder Int @default(0)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id   String @id @default(uuid())
+  name String
+
+  description   String?
+  url           String?
+  repositoryUrl String?
+
+  sortOrder Int @default(0)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}

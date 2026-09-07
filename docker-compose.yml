@@ -1,0 +1,48 @@
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:v25.4.4
+    container_name: digital-business-card-db
+
+    command:
+      - start-single-node
+      - --insecure
+      - --advertise-addr=cockroachdb
+
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+
+    volumes:
+      - cockroach-data:/cockroach/cockroach-data
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "cockroach",
+          "sql",
+          "--insecure",
+          "--host=localhost:26257",
+          "--execute=SELECT 1"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  cockroachdb-init:
+    image: cockroachdb/cockroach:v25.4.4
+
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
+
+    command:
+      [
+        "sql",
+        "--insecure",
+        "--host=cockroachdb:26257",
+        "--execute=CREATE DATABASE IF NOT EXISTS digital_business_card;"
+      ]
+
+volumes:
+  cockroach-data:
