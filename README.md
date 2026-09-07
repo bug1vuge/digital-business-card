@@ -44,7 +44,7 @@ Backend-приложение цифровой визитки, разработа
 Клонируйте репозиторий:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/bug1vuge/digital-business-card.git
 cd digital-business-card
 ```
 
