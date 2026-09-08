@@ -27,7 +27,11 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts \
     && npm cache clean --force
 
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/generated/prisma ./src/generated/prisma
 
 USER node
 
