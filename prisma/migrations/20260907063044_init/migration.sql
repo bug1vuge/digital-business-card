@@ -8,7 +8,7 @@ CREATE TABLE "Profile" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
-);
+) WITH (schema_locked = false);
 
 -- CreateTable
 CREATE TABLE "ProfessionalLink" (
@@ -19,7 +19,7 @@ CREATE TABLE "ProfessionalLink" (
     "profileId" STRING NOT NULL,
 
     CONSTRAINT "ProfessionalLink_pkey" PRIMARY KEY ("id")
-);
+) WITH (schema_locked = false);
 
 -- CreateTable
 CREATE TABLE "Skill" (
@@ -29,7 +29,7 @@ CREATE TABLE "Skill" (
     "profileId" STRING NOT NULL,
 
     CONSTRAINT "Skill_pkey" PRIMARY KEY ("id")
-);
+) WITH (schema_locked = false);
 
 -- CreateTable
 CREATE TABLE "Experience" (
@@ -44,7 +44,7 @@ CREATE TABLE "Experience" (
     "profileId" STRING NOT NULL,
 
     CONSTRAINT "Experience_pkey" PRIMARY KEY ("id")
-);
+) WITH (schema_locked = false);
 
 -- CreateTable
 CREATE TABLE "Project" (
@@ -57,7 +57,7 @@ CREATE TABLE "Project" (
     "profileId" STRING NOT NULL,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
-);
+) WITH (schema_locked = false);
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Profile_slug_key" ON "Profile"("slug");
@@ -66,13 +66,33 @@ CREATE UNIQUE INDEX "Profile_slug_key" ON "Profile"("slug");
 CREATE UNIQUE INDEX "Skill_profileId_name_key" ON "Skill"("profileId", "name");
 
 -- AddForeignKey
-ALTER TABLE "ProfessionalLink" ADD CONSTRAINT "ProfessionalLink_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ProfessionalLink"
+ADD CONSTRAINT "ProfessionalLink_profileId_fkey"
+FOREIGN KEY ("profileId")
+REFERENCES "Profile"("id")
+ON DELETE CASCADE
+ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Skill" ADD CONSTRAINT "Skill_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Skill"
+ADD CONSTRAINT "Skill_profileId_fkey"
+FOREIGN KEY ("profileId")
+REFERENCES "Profile"("id")
+ON DELETE CASCADE
+ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Experience" ADD CONSTRAINT "Experience_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Experience"
+ADD CONSTRAINT "Experience_profileId_fkey"
+FOREIGN KEY ("profileId")
+REFERENCES "Profile"("id")
+ON DELETE CASCADE
+ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project" ADD CONSTRAINT "Project_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Project"
+ADD CONSTRAINT "Project_profileId_fkey"
+FOREIGN KEY ("profileId")
+REFERENCES "Profile"("id")
+ON DELETE CASCADE
+ON UPDATE CASCADE;
