@@ -1,22 +1,30 @@
 # Digital Business Card API
 
-Backend-приложение цифровой визитки на NestJS, TypeScript, GraphQL, Prisma и CockroachDB.
+Backend-приложение цифровой визитки, разработанное на NestJS, TypeScript, GraphQL, Prisma и CockroachDB.
 
 API предоставляет информацию о профиле разработчика, профессиональных ссылках, навыках, опыте работы, достижениях и проектах.
+
+## Live Demo
+
+- Apollo Sandbox: https://digital-business-card-production-fd2e.up.railway.app/graphql
+- Health Check: https://digital-business-card-production-fd2e.up.railway.app/health
+- Source Code: https://github.com/bug1vuge/digital-business-card
 
 ## Technology Stack
 
 - TypeScript
-- Node.js
+- Node.js 24+
 - NestJS
 - GraphQL
 - Apollo Server
 - Apollo Sandbox
 - Prisma ORM
 - CockroachDB
+- PostgreSQL driver
 - Docker
 - Docker Compose
 - Vitest
+- Railway
 
 ## Features
 
@@ -24,25 +32,25 @@ API предоставляет информацию о профиле разра
 - GraphQL Code First
 - профиль разработчика
 - профессиональные ссылки
-- навыки
+- список навыков
 - опыт работы
 - достижения
 - проекты
 - вложенные GraphQL-сущности
-- Prisma ORM
-- CockroachDB
+- CockroachDB через Prisma ORM
 - Prisma migrations
-- автоматический seed базы данных
+- автоматический database seed
 - Docker-окружение
-- автоматическая подготовка базы при запуске
+- автоматическая подготовка базы данных
 - health check
 - валидация environment variables
 - unit tests
 - e2e tests
+- публичный deployment на Railway
 
 ## Quick Start
 
-Для запуска приложения требуется Docker Desktop.
+Для запуска проекта локально требуется Docker Desktop.
 
 Клонируйте репозиторий:
 
@@ -57,12 +65,6 @@ cd digital-business-card
 docker compose up --build
 ```
 
-После запуска будут доступны:
-
-- Apollo Sandbox: http://localhost:3000/graphql
-- Health Check: http://localhost:3000/health
-- CockroachDB Console: http://localhost:8080
-
 Docker Compose автоматически:
 
 1. запускает CockroachDB
@@ -71,6 +73,12 @@ Docker Compose автоматически:
 4. применяет Prisma migrations
 5. выполняет database seed
 6. запускает NestJS API
+
+После запуска доступны:
+
+- Apollo Sandbox: http://localhost:3000/graphql
+- Health Check: http://localhost:3000/health
+- CockroachDB Console: http://localhost:8080
 
 Дополнительная ручная подготовка базы данных для Docker-запуска не требуется.
 
@@ -82,9 +90,15 @@ GraphQL endpoint:
 http://localhost:3000/graphql
 ```
 
-После открытия адреса в браузере доступен Apollo Sandbox.
+Публичный endpoint:
 
-Пример запроса:
+```text
+https://digital-business-card-production-fd2e.up.railway.app/graphql
+```
+
+При открытии endpoint в браузере доступен Apollo Sandbox.
+
+### Example Query
 
 ```graphql
 query {
@@ -120,7 +134,7 @@ query {
 }
 ```
 
-Сокращенный пример:
+Сокращенный запрос:
 
 ```graphql
 query {
@@ -153,13 +167,25 @@ Endpoint:
 GET /health
 ```
 
+Локально:
+
+```text
+http://localhost:3000/health
+```
+
+Публично:
+
+```text
+https://digital-business-card-production-fd2e.up.railway.app/health
+```
+
 Пример успешного ответа:
 
 ```json
 {
   "status": "ok",
   "database": "connected",
-  "timestamp": "2026-09-07T00:00:00.000Z"
+  "timestamp": "2026-09-08T15:16:44.000Z"
 }
 ```
 
@@ -196,7 +222,7 @@ CockroachDB
 
 ### ProfileResolver
 
-Отвечает за GraphQL API и передачу запроса в service layer.
+Отвечает за GraphQL API и передачу запросов в service layer.
 
 ### ProfileService
 
@@ -204,11 +230,11 @@ CockroachDB
 
 ### PrismaService
 
-Инкапсулирует Prisma Client и управление соединением с базой данных.
+Инкапсулирует Prisma Client, PostgreSQL adapter и управление соединением с базой данных.
 
 ### CockroachDB
 
-Используется для хранения профиля, навыков, опыта работы, проектов и профессиональных ссылок.
+Используется для хранения профиля, профессиональных ссылок, навыков, опыта работы и проектов.
 
 ## Database Structure
 
@@ -229,14 +255,14 @@ Profile
 - имя
 - описание
 - уникальный slug
-- связанные ссылки
+- профессиональные ссылки
 - навыки
 - опыт работы
 - проекты
 
 ### ProfessionalLink
 
-Содержит профессиональные ссылки пользователя:
+Содержит профессиональные ссылки:
 
 - GitHub
 - Telegram
@@ -244,7 +270,7 @@ Profile
 
 ### Skill
 
-Содержит список технологий и навыков.
+Содержит список технологий и профессиональных навыков.
 
 ### Experience
 
@@ -252,10 +278,10 @@ Profile
 
 - компанию
 - должность
-- дату начала
-- дату окончания
+- дату начала работы
+- дату окончания работы
 - признак текущего места работы
-- достижения
+- список достижений
 
 ### Project
 
@@ -270,7 +296,7 @@ Profile
 
 Prisma models и GraphQL models разделены.
 
-Prisma отвечает за структуру базы данных, а GraphQL models определяют публичный API.
+Prisma определяет структуру базы данных, а GraphQL models определяют публичный API.
 
 Внутренние поля базы данных, например:
 
@@ -284,6 +310,8 @@ updatedAt
 ```
 
 не раскрываются через GraphQL, если они явно не добавлены в GraphQL model.
+
+Такой подход позволяет независимо изменять внутреннюю структуру хранения данных и публичный GraphQL API.
 
 ## Database Initialization
 
@@ -307,6 +335,12 @@ npm run db:deploy
 npm run db:seed
 ```
 
+Применение migrations и seed одной командой:
+
+```bash
+npm run db:setup
+```
+
 Проверка состояния migrations:
 
 ```bash
@@ -319,11 +353,11 @@ npm run db:status
 npm run db:generate
 ```
 
-Seed можно выполнять повторно без накопления дублирующихся связанных данных.
+Seed является повторно запускаемым и не создает наборы дублирующихся связанных данных.
 
 ## Local Development
 
-Требования:
+### Requirements
 
 - Node.js 24+
 - npm
@@ -341,6 +375,7 @@ npm install
 DATABASE_URL="postgresql://root@localhost:26257/digital_business_card?sslmode=disable"
 PORT=3000
 NODE_ENV=development
+APP_PORT=3000
 ```
 
 Запустите CockroachDB:
@@ -361,6 +396,12 @@ npm run db:deploy
 npm run db:seed
 ```
 
+Либо выполните оба шага одной командой:
+
+```bash
+npm run db:setup
+```
+
 Запустите NestJS:
 
 ```bash
@@ -375,7 +416,7 @@ http://localhost:3000
 
 ## Environment Variables
 
-Пример environment variables находится в:
+Пример находится в:
 
 ```text
 .env.example
@@ -387,6 +428,7 @@ http://localhost:3000
 DATABASE_URL="postgresql://root@localhost:26257/digital_business_card?sslmode=disable"
 PORT=3000
 NODE_ENV=development
+APP_PORT=3000
 ```
 
 ### DATABASE_URL
@@ -397,12 +439,34 @@ NODE_ENV=development
 
 ### PORT
 
-Порт HTTP-сервера.
+Внутренний HTTP-порт NestJS.
 
 По умолчанию:
 
 ```text
 3000
+```
+
+### APP_PORT
+
+Host-порт Docker Compose для доступа к приложению.
+
+По умолчанию:
+
+```text
+3000
+```
+
+Например:
+
+```env
+APP_PORT=3100
+```
+
+позволит открыть приложение локально по адресу:
+
+```text
+http://localhost:3100
 ```
 
 ### NODE_ENV
@@ -438,7 +502,7 @@ npm test
 
 E2E-тесты проверяют настоящее приложение и требуют доступную CockroachDB.
 
-При запущенном Docker-окружении:
+При работающем Docker-окружении:
 
 ```bash
 npm run test:e2e
@@ -448,7 +512,10 @@ npm run test:e2e
 
 - `GET /health`
 - GraphQL `profile` query
-- взаимодействие NestJS с Prisma и CockroachDB
+- взаимодействие NestJS с Prisma
+- взаимодействие Prisma с CockroachDB
+
+Unit и e2e тесты используют отдельные конфигурации Vitest.
 
 ## Code Quality
 
@@ -478,11 +545,11 @@ unit tests
 build
 ```
 
-E2E-тесты запускаются отдельно, поскольку требуют базу данных.
+E2E-тесты запускаются отдельно, поскольку требуют доступную базу данных.
 
 ## Docker
 
-Запуск приложения:
+Запуск:
 
 ```bash
 npm run docker:up
@@ -494,7 +561,7 @@ npm run docker:up
 npm run docker:down
 ```
 
-Удаление контейнеров и volume базы данных:
+Удаление контейнеров и database volume:
 
 ```bash
 npm run docker:reset
@@ -513,7 +580,7 @@ docker compose down -v
 docker compose up --build
 ```
 
-После удаления volume база создается заново, Prisma migrations применяются автоматически, после чего выполняется seed.
+После удаления volume CockroachDB создается заново, Prisma migrations применяются автоматически, после чего выполняется database seed.
 
 ## Docker Services
 
@@ -547,13 +614,71 @@ Database Seed
 NestJS API
 ```
 
-CockroachDB SQL port и Web Console локально привязаны к:
+Для локальной разработки используется CockroachDB `v25.4.4` в single-node режиме.
+
+CockroachDB SQL port и Web Console привязаны к:
 
 ```text
 127.0.0.1
 ```
 
-и не публикуются на внешних сетевых интерфейсах компьютера.
+Поэтому локальные порты базы данных не публикуются на внешних сетевых интерфейсах компьютера.
+
+## Deployment
+
+Публичная демонстрационная версия развернута на Railway.
+
+Схема deployment:
+
+```text
+GitHub
+   |
+   v
+Railway Build
+   |
+   v
+Docker Image
+   |
+   v
+Pre-deploy
+   |
+   +--> Prisma Migrations
+   |
+   +--> Database Seed
+   |
+   v
+NestJS API
+   |
+   v
+Railway Private Network
+   |
+   v
+CockroachDB
+```
+
+Backend собирается из корневого `Dockerfile`.
+
+Перед запуском новой версии приложения Railway выполняет:
+
+```bash
+npm run db:setup
+```
+
+Команда:
+
+1. применяет Prisma migrations
+2. выполняет database seed
+
+Backend подключается к CockroachDB через private networking Railway.
+
+Для Railway используется CockroachDB `v25.4.4`.
+
+Публичные endpoints:
+
+```text
+https://digital-business-card-production-fd2e.up.railway.app/graphql
+https://digital-business-card-production-fd2e.up.railway.app/health
+```
 
 ## Project Structure
 
@@ -561,6 +686,8 @@ CockroachDB SQL port и Web Console локально привязаны к:
 digital-business-card/
 ├── prisma/
 │   ├── migrations/
+│   │   └── 20260907063044_init/
+│   │       └── migration.sql
 │   ├── schema.prisma
 │   └── seed.ts
 │
@@ -612,7 +739,7 @@ digital-business-card/
 
 GraphQL schema формируется из TypeScript-классов и декораторов NestJS.
 
-Такой подход позволяет использовать TypeScript как источник типов GraphQL API.
+Такой подход позволяет использовать TypeScript как основной источник типов GraphQL API.
 
 ### Separate GraphQL and Prisma Models
 
@@ -624,28 +751,47 @@ GraphQL models и Prisma models разделены.
 
 `PrismaModule` не объявлен глобальным.
 
-Модули, которым требуется Prisma, подключают его явно.
+Модули, которым требуется доступ к Prisma, подключают его явно.
 
 Это делает зависимости приложения более прозрачными.
 
 ### Deterministic Ordering
 
-Связанные сущности содержат `sortOrder`.
+Связанные сущности содержат поле:
 
-API возвращает:
+```text
+sortOrder
+```
 
-- ссылки
-- навыки
-- опыт
-- проекты
-
-в предсказуемом порядке.
+API возвращает профессиональные ссылки, навыки, опыт и проекты в предсказуемом порядке.
 
 ### Database Seed
 
-Seed предназначен для автоматической подготовки данных цифровой визитки.
+Seed используется для автоматической подготовки данных цифровой визитки.
 
-Повторный запуск обновляет профиль и пересоздает связанные сущности, не создавая наборы дублирующихся записей.
+Повторный запуск обновляет профиль и пересоздает связанные данные без накопления дублирующихся записей.
+
+### Database Migrations
+
+Изменения структуры базы данных хранятся в Prisma migrations.
+
+Это позволяет воспроизводимо создавать одинаковую схему базы данных в локальном и deployment-окружениях.
+
+### Docker Multi-stage Build
+
+Dockerfile разделен на builder и production runner.
+
+Builder отвечает за:
+
+```text
+dependency installation
+Prisma Client generation
+TypeScript build
+```
+
+Production runner содержит только необходимые runtime dependencies и собранное приложение.
+
+Приложение запускается от непривилегированного пользователя `node`.
 
 ### Docker Startup
 
@@ -659,52 +805,73 @@ Prisma migrations
 database seed
 ```
 
-### CockroachDB Development Mode
+### CockroachDB
 
-Локальный Docker Compose использует CockroachDB в single-node режиме.
+Для проекта используется CockroachDB `v25.4.4`.
 
-Параметр:
+Локальное окружение работает в single-node режиме через Docker Compose.
+
+Для локальной разработки используется:
 
 ```text
 --insecure
 ```
 
-предназначен только для локального development/demo окружения.
-
-Для публичного deployment используется защищенное подключение к внешней базе данных.
+Backend в Railway взаимодействует с CockroachDB через private networking платформы.
 
 ## Available Scripts
+
+### Application
 
 ```bash
 npm run build
 npm run start
 npm run start:dev
+npm run start:debug
 npm run start:prod
+```
 
+### Code Quality
+
+```bash
 npm run lint
 npm run format
+npm run check
+```
 
+### Tests
+
+```bash
 npm test
 npm run test:watch
 npm run test:cov
+npm run test:debug
 npm run test:e2e
+```
 
+### Database
+
+```bash
 npm run db:generate
 npm run db:migrate
 npm run db:deploy
 npm run db:seed
+npm run db:setup
 npm run db:status
+```
 
+### Docker
+
+```bash
 npm run docker:up
 npm run docker:down
 npm run docker:reset
 npm run docker:logs
-
-npm run check
 ```
 
 ## Author
 
 Максим Малютин
 
-GitHub: https://github.com/bug1vuge
+- GitHub: https://github.com/bug1vuge
+- Repository: https://github.com/bug1vuge/digital-business-card
