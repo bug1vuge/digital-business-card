@@ -25,6 +25,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:status": "prisma migrate status",
+    "db:setup": "prisma migrate deploy && prisma db seed",
     "docker:up": "docker compose up -d --build",
     "docker:down": "docker compose down",
     "docker:reset": "docker compose down -v",
